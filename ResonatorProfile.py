@@ -55,16 +55,16 @@ freqs = np.asarray(freqs)
 
 
 
-line_plot = figure(plot_width=600, plot_height=300, x_axis_label='Time (ns)', tools=['box_select,reset'])
+line_plot = figure(plot_width=600, plot_height=300, x_axis_label='Time (ns)', tools=['reset'])
 line_plot.multi_line(xs='ts', ys='Vs', line_color='colors', source=source, selection_color="orange")
 
 scatter_plot = figure(plot_width=600, plot_height=300,
-                      tools=[hover, 'box_select,reset'],
+                      tools=[hover, 'tap,reset'],
                       x_axis_label='Frequency (GHz)',
                       y_axis_label='V (MHz)')
 
 scatter_plot.circle(x='freqs', y='powers', size=10, source=source,  selection_color="orange")
-scatter_plot.line(x='freqs', y='powers', source=source,  selection_color="orange")
+scatter_plot.line(x='freqs', y='powers', source=source, nonselection_line_alpha=1)
 
 
 show(column(line_plot, scatter_plot))
