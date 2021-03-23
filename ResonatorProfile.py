@@ -16,6 +16,9 @@ parser.add_argument('destination', type=str, nargs=1,
                     help='Destination directory for experiment files and transfer function')
 parser.add_argument('-p', '--prefix', dest='prefix',
                     help='Prefix of nutation files', default='Nut_')
+parser.add_argument('-t', '--test', dest='test', action='store_true',
+                    help='Prefix of nutation files', default=False)
+
 args = parser.parse_args()
 
 destination = Path(args.destination[0])
@@ -26,17 +29,20 @@ if not destination.is_dir():
     raise IOError(f'{str(destination)} is not a directory.')
 
 # Get file paths
-home_dir = Path('./test_data/Nutations')
+if args.test:
+    home_dir = Path('./test_data/Nutations')
+else:
+    home_dir = Path('/home/xuser')
 nutation_files = list(home_dir.glob(f'{args.prefix}*.DTA'))
 dsc_files = list(home_dir.glob(f'{args.prefix}*.DSC'))
 
 nutations_folder = (destination / 'Nutations')
 nutations_folder.mkdir()
 
-nf = []
+nf, nc = [], []
 for dta, dsc in zip(nutation_files, dsc_files):
     nf.append(dta.rename(nutations_folder / dta.name))
-    dsc.rename(nutations_folder / dsc.name)
+    nc.append(dsc.rename(nutations_folder / dsc.name))
 
 cmap = plt.get_cmap('gray', len(nutation_files))
 cmap = [rgb2hex(cmap(i)) for i in range(len(nutation_files))]
@@ -90,9 +96,11 @@ freqs = np.asarray(freqs)
 
 line_plot = figure(plot_width=600, plot_height=300, x_axis_label='Time (ns)', tools=['reset'])
 line_plot.multi_line(xs='ts', ys='Vs', line_color='colors', source=source, selection_color="orange")
+line_plot.yaxis.major_label_text_color = None
 
-fft_plot = figure(plot_width=600, plot_height=300, x_axis_label='Time (ns)', tools=['reset'])
+fft_plot = figure(plot_width=600, plot_height=300, x_axis_label='Frequency (MHz)', tools=['reset'])
 fft_plot.multi_line(xs='fft_freqs', ys='ffts', line_color='colors', source=source, selection_color='orange')
+fft_plot.yaxis.major_label_text_color = None
 
 scatter_plot = figure(plot_width=600, plot_height=300,
                       tools=[hover, 'tap,reset'],
@@ -106,6 +114,10 @@ show(column(line_plot, fft_plot, scatter_plot))
 
 np.savetxt(str(destination / 'Transferfunction.dat'), np.asarray([freqs, nu]).T)
 
+if args.test:
+    for dta, dsc in zip(nf, nc):
+        dta.rename(home_dir / dta.name)
+        dsc.rename(home_dir / dsc.name)
 
-
+    nutations_folder.rmdir()
 
