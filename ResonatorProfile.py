@@ -1,3 +1,4 @@
+#! /usr/bin/env python
 import argparse
 from pathlib import Path
 from glob import glob
@@ -33,20 +34,21 @@ if args.test:
     home_dir = Path('./test_data/Nutations')
 else:
     home_dir = Path('/home/xuser')
+
 nutation_files = list(home_dir.glob(f'{args.prefix}*.DTA'))
 dsc_files = list(home_dir.glob(f'{args.prefix}*.DSC'))
 
 nutations_folder = (destination / 'Nutations')
 nutations_folder.mkdir()
 
-nf, nc = [], []
 for dta, dsc in zip(nutation_files, dsc_files):
-    nf.append(dta.rename(nutations_folder / dta.name))
-    nc.append(dsc.rename(nutations_folder / dsc.name))
+    dta.rename(nutations_folder / dta.name)
+    dsc.rename(nutations_folder / dsc.name)
 
 cmap = plt.get_cmap('gray', len(nutation_files))
 cmap = [rgb2hex(cmap(i)) for i in range(len(nutation_files))]
-
+nf = nutations_folder.glob(f'{str(args.prefix)}*.DTA')
+nf = sorted(list(nf))
 tau = 200  # ns
 N = 2**14  # Zero Padding
 ts, Vs = [], []
