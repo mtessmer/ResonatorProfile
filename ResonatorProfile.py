@@ -47,14 +47,16 @@ for dta, dsc in zip(nutation_files, dsc_files):
 
 cmap = plt.get_cmap('gray', len(nutation_files))
 cmap = [rgb2hex(cmap(i)) for i in range(len(nutation_files))]
-nf = nutations_folder.glob(f'{str(args.prefix)}*.DTA')
-nf = sorted(list(nf))
+nf = sorted(list(nutations_folder.glob(f'{str(args.prefix)}*.DTA')))
+nc = sorted(list(nutations_folder.glob(f'{str(args.prefix)}*.DSC')))
+
 tau = 200  # ns
 N = 2**14  # Zero Padding
 ts, Vs = [], []
 ffts, fft_freqs = [], []
 freqs, nu = [], []
 field = []
+pipulse, halfpipulse = [], []
 for i, file in enumerate(nf):
     t, V, params = dl.deerload(str(file), full_output=True)
     freqs.append(float(params['SPL']['MWFQ']) / 1e9)   # GHz
@@ -64,6 +66,8 @@ for i, file in enumerate(nf):
         V = -V
     V -= V.mean()
     ts.append(t * 1e3), Vs.append(V)
+    pipulse.append(int(1e3 * t[np.argmin(V)]))
+    halfpipulse.append(int(1e3 * t[np.argmin(np.abs(V[:np.argmin(V)]))]))
 
     # Apply window and padding
     window = np.exp(-t / tau)
@@ -86,11 +90,14 @@ for i, file in enumerate(nf):
 
 output_file(str(destination / 'ResonatorProfile.html'))
 source = ColumnDataSource(data=dict(freqs=freqs, nu=nu, field=field, ts=ts, Vs=Vs,
-                                    colors=cmap, ffts=ffts, fft_freqs=fft_freqs))
+                                    colors=cmap, ffts=ffts, fft_freqs=fft_freqs,
+                                    pipulse=pipulse, halfpipulse=halfpipulse))
 hover = HoverTool(tooltips=[
                             ("Freq", "@freqs (GHz)"),
                             ("V", "@nu (MHz)"),
                             ("Field", "@field g"),
+                            ('π pulse', '@pipulse ns'),
+                            ('π/2 pulse', '@halfpipulse ns')
                             ])
 
 nu = np.asarray(nu)
