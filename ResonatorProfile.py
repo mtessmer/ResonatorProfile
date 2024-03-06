@@ -103,15 +103,15 @@ hover = HoverTool(tooltips=[
 nu = np.asarray(nu)
 freqs = np.asarray(freqs)
 
-line_plot = figure(plot_width=600, plot_height=300, x_axis_label='Time (ns)', tools=['reset'])
+line_plot = figure(width=600, height=300, x_axis_label='Time (ns)', tools=['reset'])
 line_plot.multi_line(xs='ts', ys='Vs', line_color='colors', source=source, selection_color="orange")
 line_plot.yaxis.major_label_text_color = None
 
-fft_plot = figure(plot_width=600, plot_height=300, x_axis_label='Frequency (MHz)', tools=['reset'])
+fft_plot = figure(width=600, height=300, x_axis_label='Frequency (MHz)', tools=['reset'])
 fft_plot.multi_line(xs='fft_freqs', ys='ffts', line_color='colors', source=source, selection_color='orange')
 fft_plot.yaxis.major_label_text_color = None
 
-scatter_plot = figure(plot_width=600, plot_height=300,
+scatter_plot = figure(width=600, height=300,
                       tools=[hover, 'tap,reset'],
                       x_axis_label='Frequency (GHz)',
                       y_axis_label='𝜈 (MHz)')
